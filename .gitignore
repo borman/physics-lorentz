@@ -1,0 +1,7 @@
+phys
+
+moc_*
+*.o
+*.swp
+*~
+*.user
