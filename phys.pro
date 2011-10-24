@@ -10,3 +10,6 @@ INCLUDEPATH += . src
 # Input
 HEADERS += src/geom.h src/modelengine.h src/physmodel.h
 SOURCES += src/main.cpp src/modelengine.cpp src/physmodel.cpp
+
+unix:QMAKE_CXXFLAGS += -fopenmp
+unix:QMAKE_LFLAGS += -fopenmp

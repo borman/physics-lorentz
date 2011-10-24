@@ -25,8 +25,21 @@ class PhysModel: public QObject
       Geom::Scalar ionOscillSpeed;
       Distribution ionPhaseDistribution;
 
-      Geom::Scalar electronDensity;
-      Geom::Scalar electronTemperature;
+      int electronCount;
+    };
+    struct Electron
+    {
+      // computed:
+      Geom::Point pos;
+      Geom::Point vel;
+    };
+    struct Ion
+    {
+      // constant:
+      Geom::Point pos;
+      Geom::Scalar phase;
+      // computed:
+      Geom::Scalar radius;
     };
 
     PhysModel(const Params &p, QObject *parent = 0);
@@ -44,25 +57,13 @@ class PhysModel: public QObject
     int electronCount() const { return m_electrons.size(); }
     Geom::Point electronPosition(int i) const { return m_electrons[i].pos; }
   private:
-    struct Electron
-    {
-      // computed:
-      Geom::Point pos;
-      Geom::Point speed;
-    };
-    struct Ion
-    {
-      // constant:
-      Geom::Point pos;
-      Geom::Scalar phase;
-      // computed:
-      Geom::Scalar radius;
-    };
 
     Params m_params;
     Geom::Scalar m_time;
     Geom::Scalar m_width;
     Geom::Scalar m_height;
+
+    Geom::Line m_edges[4];
 
     std::vector<Ion> m_ions;
     std::vector<Electron> m_electrons;

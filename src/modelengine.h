@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QGraphicsItem>
 #include <QGraphicsEllipseItem>
+#include <QGraphicsRectItem>
 #include <QTimer>
 #include "physmodel.h"
 
@@ -23,6 +24,7 @@ class ModelEngine: public QObject
     QTimer *m_timer;
     QGraphicsItem *m_rootItem;
     std::vector<QGraphicsEllipseItem *> m_ions;
+    std::vector<QGraphicsRectItem *> m_electrons;
 };
 
 #endif // MODELENGINE_H

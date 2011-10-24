@@ -16,8 +16,7 @@ int main(int argc, char **argv)
   param.ionDeltaRadius = 2;
   param.ionOscillSpeed = 10;
   param.ionPhaseDistribution = PhysModel::Uniform;
-  param.electronDensity = 1;
-  param.electronTemperature = 1;
+  param.electronCount = 1000;
 
   PhysModel phys(param);
   ModelEngine engine(&phys);
@@ -27,6 +26,9 @@ int main(int argc, char **argv)
 
   QGraphicsView view(&scene);
   view.setRenderHint(QPainter::Antialiasing);
+  view.setBackgroundBrush(Qt::black);
+  view.setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+  view.setOptimizationFlag(QGraphicsView::DontSavePainterState);
   view.show();
 
   return app.exec();
