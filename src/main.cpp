@@ -18,7 +18,7 @@ int main(int argc, char **argv)
   param.ionDeltaRadius = 2;
   param.ionOscillSpeed = 10;
   param.ionPhaseDistribution = Simulation::Uniform;
-  param.electronCount = 1;
+  param.electronCount = 10;
 
   Simulation sim(param);
 

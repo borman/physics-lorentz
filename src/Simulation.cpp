@@ -1,4 +1,6 @@
 #include <cstdlib>
+#include <utility>
+#include <QList>
 #include "Simulation.h"
 
 #ifndef M_PI
@@ -6,6 +8,7 @@
 #endif
 
 using namespace Geom;
+using namespace std;
 
 static Scalar rand_u()
 {
@@ -65,6 +68,31 @@ static void deflectFromEdges(Simulation::Electron &e, const Line &l)
 
 }
 
+void Simulation::advanceElectron(Simulation::Electron &e, double dt)
+{
+  Point newPos = e.pos + e.vel * dt;
+
+  QList<pair<Point, Point> > hits; // (position, normal)
+
+  // Bounce off walls
+  for (int j=0; j<4; j++)
+    if (m_edges[j].crossedBy(e.pos, newPos))
+    {
+      Scalar d1 = m_edges[j] * e.pos;
+      Scalar d2 = m_edges[j] * newPos;
+      Point dv = (d2-d1) * m_edges[j].normal();
+      e.pos += dv;
+      e.vel += (-2/dt) * dv;
+    }
+
+  // Bounce off ions
+  for (int j=0; j<m_ions.size(); j++) // TODO: optimize
+  {
+  }
+
+  e.pos += e.vel * dt;
+}
+
 void Simulation::advanceTime(Scalar dt)
 {
   Scalar newTime = m_time + dt;
@@ -74,27 +102,7 @@ void Simulation::advanceTime(Scalar dt)
 
 #pragma omp parallel for
   for (int i=0; i<m_electrons.size(); i++)
-  {
-    Point newPos = m_electrons[i].pos + m_electrons[i].vel * dt;
-
-    // Bounce off walls
-    for (int j=0; j<4; j++)
-      if (m_edges[j].crossedBy(m_electrons[i].pos, newPos))
-      {
-        Scalar d1 = m_edges[j] * m_electrons[i].pos;
-        Scalar d2 = m_edges[j] * newPos;
-        Point dv = (d2-d1) * m_edges[j].normal();
-        m_electrons[i].pos += dv;
-        m_electrons[i].vel += (-2/dt) * dv;
-      }
-
-    // Bounce off ions
-    for (int j=0; j<m_ions.size(); j++) // TODO: optimize
-    {
-    }
-
-    m_electrons[i].pos += m_electrons[i].vel * dt;
-  }
+    advanceElectron(m_electrons[i], dt);
 
   m_time = newTime;
 }
