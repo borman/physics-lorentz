@@ -1,5 +1,9 @@
 #include <cstdlib>
-#include "physmodel.h"
+#include "Simulation.h"
+
+#ifndef M_PI
+#define M_PI 3.1415926535897932385
+#endif
 
 using namespace Geom;
 
@@ -8,7 +12,7 @@ static Scalar rand_u()
   return Scalar(rand()) / RAND_MAX;
 }
 
-static Scalar calcRadius(const PhysModel::Params &p, Scalar time, Scalar phase)
+static Scalar calcRadius(const Simulation::Params &p, Scalar time, Scalar phase)
 {
 #if 0
   return p.ionBaseRadius + sin(time * p.ionOscillSpeed + phase) * p.ionDeltaRadius;
@@ -17,7 +21,7 @@ static Scalar calcRadius(const PhysModel::Params &p, Scalar time, Scalar phase)
 #endif
 }
 
-PhysModel::PhysModel(const Params &p, QObject *parent)
+Simulation::Simulation(const Params &p, QObject *parent)
   : QObject(parent),
     m_params(p), m_time(0), 
     m_width(p.gridStep * p.gridWidth),
@@ -56,12 +60,12 @@ PhysModel::PhysModel(const Params &p, QObject *parent)
     m_edges[i].normalize();
 }
 
-static void deflectFromEdges(PhysModel::Electron &e, const Line &l)
+static void deflectFromEdges(Simulation::Electron &e, const Line &l)
 {
 
 }
 
-void PhysModel::advanceTime(Scalar dt)
+void Simulation::advanceTime(Scalar dt)
 {
   Scalar newTime = m_time + dt;
 
@@ -72,6 +76,8 @@ void PhysModel::advanceTime(Scalar dt)
   for (int i=0; i<m_electrons.size(); i++)
   {
     Point newPos = m_electrons[i].pos + m_electrons[i].vel * dt;
+
+    // Bounce off walls
     for (int j=0; j<4; j++)
       if (m_edges[j].crossedBy(m_electrons[i].pos, newPos))
       {
@@ -81,6 +87,12 @@ void PhysModel::advanceTime(Scalar dt)
         m_electrons[i].pos += dv;
         m_electrons[i].vel += (-2/dt) * dv;
       }
+
+    // Bounce off ions
+    for (int j=0; j<m_ions.size(); j++) // TODO: optimize
+    {
+    }
+
     m_electrons[i].pos += m_electrons[i].vel * dt;
   }
 

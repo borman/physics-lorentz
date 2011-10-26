@@ -8,7 +8,7 @@
 
 using namespace Geom;
 
-ModelEngine::ModelEngine(PhysModel *mdl, QObject *parent)
+ModelEngine::ModelEngine(Simulation *mdl, QObject *parent)
   : QObject(parent), m_model(mdl)
 {
   QGraphicsRectItem *rootRect = new QGraphicsRectItem(

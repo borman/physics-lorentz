@@ -3,9 +3,10 @@
 
 #include <vector>
 #include <QObject>
-#include "geom.h"
 
-class PhysModel: public QObject
+#include "Geom.h"
+
+class Simulation: public QObject
 {
   Q_OBJECT
   public:
@@ -42,7 +43,7 @@ class PhysModel: public QObject
       Geom::Scalar radius;
     };
 
-    PhysModel(const Params &p, QObject *parent = 0);
+    Simulation(const Params &p, QObject *parent = 0);
 
     void advanceTime(Geom::Scalar dt);
     Geom::Scalar time() const { return m_time; }
@@ -50,11 +51,11 @@ class PhysModel: public QObject
     Geom::Scalar width() const { return m_width; }
     Geom::Scalar height() const { return m_height; }
 
-    int ionCount() const { return m_ions.size(); }
+    size_t ionCount() const { return m_ions.size(); }
     Geom::Point ionPosition(int i) const { return m_ions[i].pos; }
     Geom::Scalar ionRadius(int i) const { return m_ions[i].radius; }
 
-    int electronCount() const { return m_electrons.size(); }
+    size_t electronCount() const { return m_electrons.size(); }
     Geom::Point electronPosition(int i) const { return m_electrons[i].pos; }
   private:
 

@@ -6,10 +6,27 @@ TEMPLATE = app
 TARGET = 
 DEPENDPATH += . src
 INCLUDEPATH += . src
+QT += core gui opengl
 
 # Input
-HEADERS += src/geom.h src/modelengine.h src/physmodel.h
-SOURCES += src/main.cpp src/modelengine.cpp src/physmodel.cpp
+HEADERS += src/modelengine.h \
+    src/SimulationViewer.h \
+    src/Simulation.h \
+    src/Geom.h
+SOURCES += src/main.cpp src/modelengine.cpp \
+    src/SimulationViewer.cpp \
+    src/Simulation.cpp
 
 unix:QMAKE_CXXFLAGS += -fopenmp
 unix:QMAKE_LFLAGS += -fopenmp
+
+win32:QMAKE_CXXFLAGS += /openmp
+win32:QMAKE_LFLAGS += /openmp
+
+
+
+
+
+
+
+
