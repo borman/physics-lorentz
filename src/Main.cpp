@@ -15,7 +15,7 @@ int main(int argc, char **argv)
   param.gridWidth = 5;
   param.gridHeight = 5;
   param.ionBaseRadius = 10;
-  param.ionDeltaRadius = 2;
+  param.ionDeltaRadius = 5;
   param.ionOscillSpeed = 10;
   param.ionPhaseDistribution = Simulation::Uniform;
   param.electronBaseSpeed = 30;

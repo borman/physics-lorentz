@@ -10,6 +10,32 @@
 using namespace Geom;
 using namespace std;
 
+class HitSorter
+{
+  public:
+    HitSorter (const Point &ref): m_empty(true), m_ref(ref) {}
+
+    bool empty() const { return m_empty; }
+    Point pos() const { return m_pos; }
+    Point norm() const { return m_norm; }
+    Point vel() { return m_vel; }
+
+    void add(const Point &pos, const Point &norm, const Point &vel = Point(0, 0))
+    {
+      if (m_empty || (m_ref - m_pos).sqr() > (m_ref - pos).sqr())
+      {
+        m_empty = false;
+        m_pos = pos;
+        m_norm = norm;
+        m_vel = vel;
+      }
+    }
+  private:
+    bool m_empty;
+    Point m_ref;
+    Point m_pos, m_norm, m_vel;
+};
+
 static inline Scalar rand_u()
 {
   return Scalar(rand()) / RAND_MAX;
@@ -82,13 +108,12 @@ void Simulation::advanceElectron(Simulation::Electron &e, double dt)
 {
   Point newPos = e.pos + e.vel * dt;
 
-  QList<pair<Point, Point> > hits; // (position, normal)
+  HitSorter hits(e.pos); // (position, normal)
 
   // Bounce off walls
   for (int j=0; j<4; j++)
     if (m_edges[j].crossedBy(e.pos, newPos))
-      hits << make_pair(m_edges[j].cross(Line(e.pos, newPos)), 
-                        m_edges[j].normal());
+      hits.add(m_edges[j].cross(Line(e.pos, newPos)), m_edges[j].normal());
 
   // Bounce off ions
   for (size_t j=0; j<m_ions.size(); j++) // TODO: optimize
@@ -113,7 +138,7 @@ void Simulation::advanceElectron(Simulation::Electron &e, double dt)
           // hit! 
           Point hit = e.pos + t*e.vel;
           Point norm = (hit - m_ions[j].pos).normalized();
-          hits << make_pair(hit, norm);
+          hits.add(hit, norm);
         }
       }
     }
@@ -121,8 +146,8 @@ void Simulation::advanceElectron(Simulation::Electron &e, double dt)
 
   if (!hits.empty())
   {
-    e.pos = hits[0].first;
-    e.vel += (-2) * (e.vel.dot(hits[0].second)) * hits[0].second;
+    e.pos = hits.pos();
+    e.vel += (-2) * (e.vel.dot(hits.norm())) * hits.norm();
     // TODO: go further?
   }
   else
