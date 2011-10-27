@@ -5,8 +5,9 @@
 
 using namespace Geom;
 
-SimulationViewer::SimulationViewer(Simulation *sim, QWidget *parent) :
-    QGLWidget(parent), m_sim(sim)
+SimulationViewer::SimulationViewer(Simulation *sim, QWidget *parent)
+  : QGLWidget(QGLFormat(QGL::AccumBuffer | QGL::AlphaChannel), parent),
+    m_sim(sim)
 {
   QTimer *t = new QTimer(this);
   t->setInterval(1000/60);
@@ -26,18 +27,19 @@ void SimulationViewer::resizeGL(int w, int h)
   glLoadIdentity();
   glOrtho(0, m_sim->width(), 0, m_sim->height(), 0, 15.0);
   glMatrixMode(GL_MODELVIEW);
+  glClear(GL_COLOR_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
 }
 
 void SimulationViewer::paintGL()
 {
   glClear(GL_COLOR_BUFFER_BIT);
+  glAccum(GL_RETURN, 0.7);
 
   glColor3d(0.9, 0.7, 0.5);
   for (int i=0; i<m_sim->ionCount(); i++)
   {
     Point pos = m_sim->ionPosition(i);
     double r = m_sim->ionRadius(i);
-    //glRectd(pos.x()-r, pos.y()-r, pos.x()+r, pos.y()+r);
 
     glBegin(GL_TRIANGLE_FAN);
     glVertex2d(pos.x, pos.y);
@@ -50,6 +52,7 @@ void SimulationViewer::paintGL()
     glEnd();
   }
 
+
   glColor4d(1.0, 1.0, 1.0, 0.5);
   for (int i=0; i<m_sim->electronCount(); i++)
   {
@@ -57,6 +60,8 @@ void SimulationViewer::paintGL()
     double r = 0.5;
     glRectd(pos.x-r, pos.y-r, pos.x+r, pos.y+r);
   }
+
+  glAccum(GL_LOAD, 1.0);
 }
 
 void SimulationViewer::onTimer()

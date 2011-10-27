@@ -12,14 +12,14 @@ int main(int argc, char **argv)
 
   Simulation::Params param;
   param.gridStep = 50;
-  param.gridWidth = 10;
-  param.gridHeight = 10;
+  param.gridWidth = 4;
+  param.gridHeight = 4;
   param.ionBaseRadius = 10;
   param.ionDeltaRadius = 5;
   param.ionOscillSpeed = 3;
   param.ionPhaseDistribution = Simulation::Uniform;
-  param.electronBaseSpeed = 100;
-  param.electronCount = 10000;
+  param.electronBaseSpeed = 50;
+  param.electronCount = 200;
 
   Simulation sim(param);
 
