@@ -148,17 +148,32 @@ static void collideWithWall(HitSorter &hits, const Simulation::Electron &e, cons
   }
 }
 
+static int gridCell(const Simulation::Params &p, Scalar v)
+{
+  return qBound(0, int(v / p.gridStep), p.gridWidth-1);
+}
+
 void Simulation::advanceElectron(Simulation::Electron &e, double dt)
 {
   HitSorter hits(e.pos, dt);
+  Point straightPos = e.pos + dt*e.vel;
 
   // Bounce off walls
   for (int j=0; j<4; j++)
     collideWithWall(hits, e, m_edges[j]);
 
   // Bounce off ions
-  for (size_t j=0; j<m_ions.size(); j++) // TODO: optimize
-    collideWithIon(hits, e, m_ions[j]);
+  // Find potentially colliding ions (should be ~1 each time)
+  int x1 = gridCell(m_params, e.pos.x);
+  int x2 = gridCell(m_params, straightPos.x);
+  if (x2 < x1) swap(x1, x2);
+
+  int y1 = gridCell(m_params, e.pos.y);
+  int y2 = gridCell(m_params, straightPos.y);
+  if (y2 < y1) swap(y1, y2);
+  for(int y=y1; y<=y2; y++)
+    for (int x=x1; x<=x2; x++)
+      collideWithIon(hits, e, m_ions[y*m_params.gridWidth + x]);
 
   if (!hits.empty())
   {
@@ -169,7 +184,7 @@ void Simulation::advanceElectron(Simulation::Electron &e, double dt)
     advanceElectron(e, dt-hits.time());
   }
   else
-    e.pos += e.vel * dt;
+    e.pos = straightPos;
 }
 
 void Simulation::advanceTime(Scalar dt)

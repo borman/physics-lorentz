@@ -18,12 +18,12 @@ int main(int argc, char **argv)
   param.ionDeltaRadius = 5;
   param.ionOscillSpeed = 3;
   param.ionPhaseDistribution = Simulation::Uniform;
-  param.electronBaseSpeed = 30;
+  param.electronBaseSpeed = 100;
   param.electronCount = 10000;
 
   Simulation sim(param);
 
-#if 0
+#if 1
   // Visual simulation
   SimulationViewer sv(&sim);
   sv.resize(sv.sizeHint());
