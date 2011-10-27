@@ -12,22 +12,26 @@ int main(int argc, char **argv)
 
   Simulation::Params param;
   param.gridStep = 50;
-  param.gridWidth = 5;
-  param.gridHeight = 5;
+  param.gridWidth = 10;
+  param.gridHeight = 10;
   param.ionBaseRadius = 10;
   param.ionDeltaRadius = 5;
-  param.ionOscillSpeed = 10;
+  param.ionOscillSpeed = 3;
   param.ionPhaseDistribution = Simulation::Uniform;
   param.electronBaseSpeed = 30;
-  param.electronCount = 1000;
+  param.electronCount = 10000;
 
   Simulation sim(param);
 
+#if 0
+  // Visual simulation
   SimulationViewer sv(&sim);
   sv.resize(sv.sizeHint());
   sv.show();
 
-  /*
+  return app.exec();
+#else
+  // Non-interactive simulation-only benchmark
   long long count = 0;
   QTime time;
   time.start();
@@ -35,14 +39,13 @@ int main(int argc, char **argv)
   {
     sim.advanceTime(1.0/60);
     count++;
-    if (count % 100000 == 0)
+    if (count % 1000 == 0)
     {
       qDebug() << "simulation speed:" << (double(count)*1000.0/time.elapsed()) << "fps";
       count = 0;
       time.restart();
     }
   }
-  */
-
-  return app.exec();
+  return 0;
+#endif
 }

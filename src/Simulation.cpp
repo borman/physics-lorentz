@@ -13,18 +13,21 @@ using namespace std;
 class HitSorter
 {
   public:
-    HitSorter (const Point &ref): m_empty(true), m_ref(ref) {}
+    HitSorter (const Point &ref, Scalar tf)
+      : m_empty(true), m_timeframe(tf), m_ref(ref) {}
 
     bool empty() const { return m_empty; }
+    Scalar time() const { return m_time; }
     Point pos() const { return m_pos; }
     Point norm() const { return m_norm; }
     Point vel() { return m_vel; }
 
-    void add(const Point &pos, const Point &norm, const Point &vel = Point(0, 0))
+    void add(Scalar time, const Point &pos, const Point &norm, const Point &vel = Point(0, 0))
     {
-      if (m_empty || (m_ref - m_pos).sqr() > (m_ref - pos).sqr())
+      if (eps < time && time < m_timeframe+eps && (m_empty || time < m_time))
       {
         m_empty = false;
+        m_time = time;
         m_pos = pos;
         m_norm = norm;
         m_vel = vel;
@@ -32,7 +35,9 @@ class HitSorter
     }
   private:
     bool m_empty;
+    Scalar m_timeframe;
     Point m_ref;
+    Scalar m_time;
     Point m_pos, m_norm, m_vel;
 };
 
@@ -79,6 +84,8 @@ Simulation::Simulation(const Params &p, QObject *parent)
   for (size_t i=0; i<p.electronCount; i++)
   {
     Electron e;
+
+    // Avoid putting electrons inside ions
     bool properly = true;
     do
     {
@@ -86,7 +93,7 @@ Simulation::Simulation(const Params &p, QObject *parent)
       properly = true;
       for (size_t j=0; j<m_ions.size(); j++) 
         properly = properly && 
-          (e.pos - m_ions[j].pos).sqr() > sqr(m_ions[j].radius);
+          (e.pos - m_ions[j].pos).sqr() > sqr(m_ions[j].radius) + eps;
     }
     while (!properly);
 
@@ -104,51 +111,62 @@ Simulation::Simulation(const Params &p, QObject *parent)
     m_edges[i].normalize();
 }
 
+static void collideWithIon(HitSorter &hits, const Simulation::Electron &e, const Simulation::Ion &ion)
+{
+  Point d = e.pos - ion.pos;
+
+  // kt^2 + lt + m = 0
+  Scalar k = e.vel.sqr();
+  Scalar l = 2 * e.vel.dot(d);
+  Scalar m = d.sqr() - sqr(ion.radius);
+
+  Scalar dis = l*l - 4*k*m;
+  if (dis >= 0) // Solutions exist
+  {
+    Scalar ts[2];
+    ts[0] = (-l - sqrt(dis)) / (2*k);
+    ts[1] = (-l + sqrt(dis)) / (2*k);
+    for (int q=0; q<2; q++)
+    {
+      Scalar t = ts[q];
+      Point hit = e.pos + t*e.vel;
+      Point norm = (hit - ion.pos).normalized();
+      hits.add(t, hit, norm);
+    }
+  }
+}
+
+static void collideWithWall(HitSorter &hits, const Simulation::Electron &e, const Line &wall)
+{
+  Point norm = wall.normal();
+  Scalar det = norm.dot(e.vel);
+
+  if (abs(det) > eps) // not parallel
+  {
+    Scalar t = - (norm.dot(e.pos) + wall.c) / det;
+    hits.add(t, e.pos + t*e.vel, norm);
+  }
+}
+
 void Simulation::advanceElectron(Simulation::Electron &e, double dt)
 {
-  Point newPos = e.pos + e.vel * dt;
-
-  HitSorter hits(e.pos); // (position, normal)
+  HitSorter hits(e.pos, dt);
 
   // Bounce off walls
   for (int j=0; j<4; j++)
-    if (m_edges[j].crossedBy(e.pos, newPos))
-      hits.add(m_edges[j].cross(Line(e.pos, newPos)), m_edges[j].normal());
+    collideWithWall(hits, e, m_edges[j]);
 
   // Bounce off ions
   for (size_t j=0; j<m_ions.size(); j++) // TODO: optimize
-  { 
-    Point d = e.pos - m_ions[j].pos;
-
-    Scalar k = e.vel.sqr();
-    Scalar l = 2 * e.vel.dot(d);
-    Scalar m = d.sqr() - sqr(m_ions[j].radius);
-
-    Scalar dis = l*l - 4*k*m;
-    if (dis > -eps)
-    {
-      Scalar ts[2];
-      ts[0] = (-l - sqrt(dis)) / (2*k);
-      ts[1] = (-l + sqrt(dis)) / (2*k);
-      for (int q=0; q<2; q++)
-      {
-        Scalar t = ts[q];
-        if (t > eps && t < dt+eps)
-        {
-          // hit! 
-          Point hit = e.pos + t*e.vel;
-          Point norm = (hit - m_ions[j].pos).normalized();
-          hits.add(hit, norm);
-        }
-      }
-    }
-  }
+    collideWithIon(hits, e, m_ions[j]);
 
   if (!hits.empty())
   {
     e.pos = hits.pos();
     e.vel += (-2) * (e.vel.dot(hits.norm())) * hits.norm();
-    // TODO: go further?
+
+    // Process remaining collisions within current timeslot
+    advanceElectron(e, dt-hits.time());
   }
   else
     e.pos += e.vel * dt;
@@ -162,7 +180,7 @@ void Simulation::advanceTime(Scalar dt)
     m_ions[i].radius = calcRadius(m_params, newTime, m_ions[i].phase);
 
 #pragma omp parallel for
-  for (size_t i=0; i<m_electrons.size(); i++)
+  for (int i=0; i<m_electrons.size(); i++)
     advanceElectron(m_electrons[i], dt);
 
   m_time = newTime;
