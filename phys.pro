@@ -9,13 +9,13 @@ INCLUDEPATH += . src
 QT += core gui opengl
 
 # Input
-HEADERS += src/modelengine.h \
-    src/SimulationViewer.h \
+HEADERS += src/SimulationViewer.h \
     src/Simulation.h \
     src/Geom.h
-SOURCES += src/main.cpp src/modelengine.cpp \
+SOURCES += src/Main.cpp \
     src/SimulationViewer.cpp \
-    src/Simulation.cpp
+    src/Simulation.cpp \
+    src/Geom.cpp
 
 unix:QMAKE_CXXFLAGS += -fopenmp
 unix:QMAKE_LFLAGS += -fopenmp

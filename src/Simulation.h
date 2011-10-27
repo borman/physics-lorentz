@@ -26,7 +26,8 @@ class Simulation: public QObject
       Geom::Scalar ionOscillSpeed;
       Distribution ionPhaseDistribution;
 
-      int electronCount;
+      Geom::Scalar electronBaseSpeed;
+      size_t electronCount;
     };
     struct Electron
     {

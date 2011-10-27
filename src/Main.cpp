@@ -12,13 +12,14 @@ int main(int argc, char **argv)
 
   Simulation::Params param;
   param.gridStep = 50;
-  param.gridWidth = 10;
-  param.gridHeight = 10;
-  param.ionBaseRadius = 5;
+  param.gridWidth = 5;
+  param.gridHeight = 5;
+  param.ionBaseRadius = 10;
   param.ionDeltaRadius = 2;
   param.ionOscillSpeed = 10;
   param.ionPhaseDistribution = Simulation::Uniform;
-  param.electronCount = 10;
+  param.electronBaseSpeed = 30;
+  param.electronCount = 1000;
 
   Simulation sim(param);
 
@@ -41,20 +42,6 @@ int main(int argc, char **argv)
       time.restart();
     }
   }
-  */
-
-  /*
-  ModelEngine engine(&phys);
-
-  QGraphicsScene scene;
-  scene.addItem(engine.rootItem());
-
-  QGraphicsView view(&scene);
-  view.setRenderHint(QPainter::Antialiasing);
-  view.setBackgroundBrush(Qt::black);
-  view.setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-  view.setOptimizationFlag(QGraphicsView::DontSavePainterState);
-  view.show();
   */
 
   return app.exec();

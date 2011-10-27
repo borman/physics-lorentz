@@ -40,12 +40,12 @@ void SimulationViewer::paintGL()
     //glRectd(pos.x()-r, pos.y()-r, pos.x()+r, pos.y()+r);
 
     glBegin(GL_TRIANGLE_FAN);
-    glVertex2d(pos.x(), pos.y());
+    glVertex2d(pos.x, pos.y);
     static const int circle_sides = 10;
     for (int j=0; j<=circle_sides; j++)
     {
       double alpha = j * (2*M_PI/circle_sides);
-      glVertex2d(pos.x() + r*cos(alpha), pos.y() + r*sin(alpha));
+      glVertex2d(pos.x + r*cos(alpha), pos.y + r*sin(alpha));
     }
     glEnd();
   }
@@ -55,7 +55,7 @@ void SimulationViewer::paintGL()
   {
     Point pos = m_sim->electronPosition(i);
     double r = 0.5;
-    glRectd(pos.x()-r, pos.y()-r, pos.x()+r, pos.y()+r);
+    glRectd(pos.x-r, pos.y-r, pos.x+r, pos.y+r);
   }
 }
 

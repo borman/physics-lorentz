@@ -10,9 +10,14 @@
 using namespace Geom;
 using namespace std;
 
-static Scalar rand_u()
+static inline Scalar rand_u()
 {
   return Scalar(rand()) / RAND_MAX;
+}
+
+static inline Scalar sqr(Scalar x)
+{
+  return x*x;
 }
 
 static Scalar calcRadius(const Simulation::Params &p, Scalar time, Scalar phase)
@@ -45,12 +50,22 @@ Simulation::Simulation(const Params &p, QObject *parent)
     }
 
   m_electrons.reserve(p.electronCount);
-  for (int i=0; i<p.electronCount; i++)
+  for (size_t i=0; i<p.electronCount; i++)
   {
     Electron e;
-    e.pos = Point(rand_u() * m_width, rand_u() * m_height);
+    bool properly = true;
+    do
+    {
+      e.pos = Point(rand_u() * m_width, rand_u() * m_height);
+      properly = true;
+      for (size_t j=0; j<m_ions.size(); j++) 
+        properly = properly && 
+          (e.pos - m_ions[j].pos).sqr() > sqr(m_ions[j].radius);
+    }
+    while (!properly);
+
     Scalar phi = rand_u() * 2 * M_PI;
-    Scalar vel = 100;
+    Scalar vel = p.electronBaseSpeed;
     e.vel = Point(vel * cos(phi), vel * sin(phi));
     m_electrons.push_back(e);
   }
@@ -63,11 +78,6 @@ Simulation::Simulation(const Params &p, QObject *parent)
     m_edges[i].normalize();
 }
 
-static void deflectFromEdges(Simulation::Electron &e, const Line &l)
-{
-
-}
-
 void Simulation::advanceElectron(Simulation::Electron &e, double dt)
 {
   Point newPos = e.pos + e.vel * dt;
@@ -77,31 +87,57 @@ void Simulation::advanceElectron(Simulation::Electron &e, double dt)
   // Bounce off walls
   for (int j=0; j<4; j++)
     if (m_edges[j].crossedBy(e.pos, newPos))
-    {
-      Scalar d1 = m_edges[j] * e.pos;
-      Scalar d2 = m_edges[j] * newPos;
-      Point dv = (d2-d1) * m_edges[j].normal();
-      e.pos += dv;
-      e.vel += (-2/dt) * dv;
-    }
+      hits << make_pair(m_edges[j].cross(Line(e.pos, newPos)), 
+                        m_edges[j].normal());
 
   // Bounce off ions
-  for (int j=0; j<m_ions.size(); j++) // TODO: optimize
-  {
+  for (size_t j=0; j<m_ions.size(); j++) // TODO: optimize
+  { 
+    Point d = e.pos - m_ions[j].pos;
+
+    Scalar k = e.vel.sqr();
+    Scalar l = 2 * e.vel.dot(d);
+    Scalar m = d.sqr() - sqr(m_ions[j].radius);
+
+    Scalar dis = l*l - 4*k*m;
+    if (dis > -eps)
+    {
+      Scalar ts[2];
+      ts[0] = (-l - sqrt(dis)) / (2*k);
+      ts[1] = (-l + sqrt(dis)) / (2*k);
+      for (int q=0; q<2; q++)
+      {
+        Scalar t = ts[q];
+        if (t > eps && t < dt+eps)
+        {
+          // hit! 
+          Point hit = e.pos + t*e.vel;
+          Point norm = (hit - m_ions[j].pos).normalized();
+          hits << make_pair(hit, norm);
+        }
+      }
+    }
   }
 
-  e.pos += e.vel * dt;
+  if (!hits.empty())
+  {
+    e.pos = hits[0].first;
+    e.vel += (-2) * (e.vel.dot(hits[0].second)) * hits[0].second;
+    // TODO: go further?
+  }
+  else
+    e.pos += e.vel * dt;
 }
 
 void Simulation::advanceTime(Scalar dt)
 {
   Scalar newTime = m_time + dt;
 
-  for (int i=0; i<m_ions.size(); i++)
+  for (size_t i=0; i<m_ions.size(); i++)
     m_ions[i].radius = calcRadius(m_params, newTime, m_ions[i].phase);
 
 #pragma omp parallel for
-  for (int i=0; i<m_electrons.size(); i++)
+  for (size_t i=0; i<m_electrons.size(); i++)
     advanceElectron(m_electrons[i], dt);
 
   m_time = newTime;
