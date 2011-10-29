@@ -28,6 +28,7 @@ void SimulationViewer::resizeGL(int w, int h)
   glOrtho(0, m_sim->width(), 0, m_sim->height(), 0, 15.0);
   glMatrixMode(GL_MODELVIEW);
   glClear(GL_COLOR_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
+  glPointSize(2.0);
 }
 
 void SimulationViewer::paintGL()
@@ -54,12 +55,13 @@ void SimulationViewer::paintGL()
 
 
   glColor4d(1.0, 1.0, 1.0, 0.5);
+  glBegin(GL_POINTS);
   for (int i=0; i<m_sim->electronCount(); i++)
   {
     Point pos = m_sim->electronPosition(i);
-    double r = 0.5;
-    glRectd(pos.x-r, pos.y-r, pos.x+r, pos.y+r);
+    glVertex2d(pos.x, pos.y);
   }
+  glEnd();
 
   glAccum(GL_LOAD, 1.0);
 }
