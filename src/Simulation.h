@@ -6,6 +6,8 @@
 
 #include "Geom.h"
 
+class HitSorter;
+
 class Simulation: public QObject
 {
   Q_OBJECT
@@ -59,7 +61,14 @@ class Simulation: public QObject
     size_t electronCount() const { return m_electrons.size(); }
     Geom::Point electronPosition(int i) const { return m_electrons[i].pos; }
   private:
-    void advanceElectron(Electron &e, double dt);
+    void advanceElectron(Electron &e, Geom::Scalar time, Geom::Scalar dt);
+    void collideWithIon(Geom::Scalar time,
+                        HitSorter &hits, 
+                        const Electron &e,
+                        const Ion &ion);
+    void collideWithWall(HitSorter &hits, 
+                         const Electron &e, 
+                         const Geom::Line &wall);
 
     Params m_params;
     Geom::Scalar m_time;

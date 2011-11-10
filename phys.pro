@@ -17,7 +17,7 @@ SOURCES += src/Main.cpp \
     src/Simulation.cpp \
     src/Geom.cpp
 
-unix:QMAKE_CXXFLAGS += -fopenmp
+unix:QMAKE_CXXFLAGS += -fopenmp -ffast-math
 unix:QMAKE_LFLAGS += -fopenmp
 
 win32:QMAKE_CXXFLAGS += /openmp

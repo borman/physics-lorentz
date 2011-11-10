@@ -5,12 +5,14 @@
 
 using namespace Geom;
 
+const double FPS = 60;
+
 SimulationViewer::SimulationViewer(Simulation *sim, QWidget *parent)
-  : QGLWidget(QGLFormat(QGL::AccumBuffer | QGL::AlphaChannel), parent),
+  : QGLWidget(QGLFormat(QGL::AccumBuffer | QGL::SampleBuffers), parent),
     m_sim(sim)
 {
   QTimer *t = new QTimer(this);
-  t->setInterval(1000/60);
+  t->setInterval(1000/FPS);
   t->start();
   connect(t, SIGNAL(timeout()), SLOT(onTimer()));
 }
@@ -27,6 +29,8 @@ void SimulationViewer::resizeGL(int w, int h)
   glLoadIdentity();
   glOrtho(0, m_sim->width(), 0, m_sim->height(), 0, 15.0);
   glMatrixMode(GL_MODELVIEW);
+
+  glPointSize(2.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
   glPointSize(2.0);
 }
@@ -34,7 +38,7 @@ void SimulationViewer::resizeGL(int w, int h)
 void SimulationViewer::paintGL()
 {
   glClear(GL_COLOR_BUFFER_BIT);
-  glAccum(GL_RETURN, 0.7);
+  glAccum(GL_RETURN, 1.0);
 
   glColor3d(0.9, 0.7, 0.5);
   for (int i=0; i<m_sim->ionCount(); i++)
@@ -64,10 +68,11 @@ void SimulationViewer::paintGL()
   glEnd();
 
   glAccum(GL_LOAD, 1.0);
+  glAccum(GL_MULT, 0.9);
 }
 
 void SimulationViewer::onTimer()
 {
-  m_sim->advanceTime(1.0/60);
+  m_sim->advanceTime(1.0/FPS);
   repaint();
 }
