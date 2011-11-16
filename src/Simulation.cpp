@@ -4,10 +4,6 @@
 #include <QDebug>
 #include "Simulation.h"
 
-#ifndef M_PI
-#define M_PI 3.1415926535897932385
-#endif
-
 using namespace Geom;
 using namespace std;
 
@@ -26,7 +22,7 @@ class HitSorter
 
     void add(Scalar time, const Point &pos, const Point &norm, const Point &vel = Point(0, 0))
     {
-      if (time > eps && time < m_timeframe+eps && (m_empty || time < m_time))
+      if (time > 0 && time < m_timeframe+eps && (m_empty || time < m_time))
       {
         m_empty = false;
         m_time = time;
@@ -81,11 +77,19 @@ Scalar Simulation::Ion::radiusSpeed(const Params &p, Scalar time) const
 }
 
 Simulation::Simulation(const Params &p, QObject *parent)
-  : QObject(parent),
-    m_params(p), m_time(0), 
-    m_width(p.gridStep * p.gridWidth),
-    m_height(p.gridStep * p.gridHeight)
+  : QObject(parent)
 {
+  reset(p);
+}
+
+void Simulation::reset(const Params &p)
+{
+  m_params = p;
+  m_time = 0;
+  m_width = p.gridStep * p.gridWidth;
+  m_height = p.gridStep * p.gridHeight;
+
+  m_ions.clear();
   m_ions.reserve(p.gridWidth * p.gridHeight);
   for (int y=0; y<p.gridHeight; y++)
     for (int x=0; x<p.gridWidth; x++)
@@ -99,6 +103,7 @@ Simulation::Simulation(const Params &p, QObject *parent)
       m_ions.push_back(ion);
     }
 
+  m_electrons.clear();
   m_electrons.reserve(p.electronCount);
   for (size_t i=0; i<p.electronCount; i++)
   {
@@ -142,10 +147,11 @@ void Simulation::collideWithIon(Scalar time,
   Scalar dt = hits.timeframe();
   Scalar r0 = ion.radius(m_params, time);
   Scalar r1 = ion.radius(m_params, time+dt);
+  //qDebug() << "Test ion:" << ion << "r:" << r0 << "->" << r1;
 
   // kt^2 + lt + m = 0
   Scalar k = e.vel.sqr() - sqr((r1-r0)/dt);
-  Scalar l = 2 * e.vel.dot(d) - 2 * r0*(r1-r0) / (dt*dt);
+  Scalar l = 2 * e.vel.dot(d) - 2 * r0*(r1-r0)/dt;
   Scalar m = d.sqr() - r0*r0;
 
   Scalar dis = l*l - 4*k*m;
@@ -157,11 +163,14 @@ void Simulation::collideWithIon(Scalar time,
     for (int q=0; q<2; q++)
     {
       Scalar t = ts[q];
-      if (t < 1e-6)
-        continue;
       Point hit = e.pos + t*e.vel;
+
+      // Fix hit position to be on the edge
+      Scalar k = (ion.radius(m_params, time+t) + 0.1) / ((hit-ion.pos).length());
+      hit = ion.pos + (hit-ion.pos)*k;
+
       Point norm = (hit - ion.pos).normalized();
-      qDebug() << "Collision:" << e << ion;
+      //qDebug() << "Collision:" << e << ion << "@" << t;
       hits.add(t, hit, norm, norm*ion.radiusSpeed(m_params, time+t));
     }
   }
@@ -214,13 +223,19 @@ void Simulation::advanceElectron(Simulation::Electron &e,
   if (!hits.empty())
   {
     e.pos = hits.pos();
-    e.vel += (-2 * e.vel.dot(hits.norm())) * hits.norm();
+    if (e.vel.dot(hits.norm())) // Need to reflect
+      e.vel += (-2 * e.vel.dot(hits.norm())) * hits.norm();
+    e.vel += hits.vel(); // FIXME
 
-    qDebug() << "Hit:" << hits.pos() << hits.norm() << "@" << hits.time();
+    //qDebug() << "Hit:" << hits.pos() << hits.norm() << "@" << hits.time();
 
+    e.pos += (dt-hits.time()) * e.vel;
+    /*
     // Process remaining collisions within current timeslot
-    if (time > eps)
-      advanceElectron(e, time+hits.time(), dt-hits.time());
+    dt -= hits.time();
+    if (dt > eps)
+      advanceElectron(e, time+hits.time(), dt);
+      */
   }
   else
     e.pos = straightPos;
@@ -228,8 +243,9 @@ void Simulation::advanceElectron(Simulation::Electron &e,
 
 void Simulation::advanceTime(Scalar dt)
 {
+  //qDebug() << "-------------- Frame" << m_time << "->" << m_time+dt << "--------------";
 #pragma omp parallel for
-  for (int i=0; i<m_electrons.size(); i++)
+  for (int i=0; (size_t)i < m_electrons.size(); i++)
     advanceElectron(m_electrons[i], m_time, dt);
 
   m_time += dt;

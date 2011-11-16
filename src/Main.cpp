@@ -5,6 +5,7 @@
 
 #include "Simulation.h"
 #include "SimulationViewer.h"
+#include "MainWindow.h"
 
 int main(int argc, char **argv)
 {
@@ -19,15 +20,21 @@ int main(int argc, char **argv)
   param.ionOscillSpeed = 3;
   param.ionPhaseDistribution = Simulation::Uniform;
   param.electronBaseSpeed = 100;
-  param.electronCount = 1;
+  param.electronCount = 500;
 
   Simulation sim(param);
 
 #if 1
   // Visual simulation
+  /*
   SimulationViewer sv(&sim);
   sv.resize(sv.sizeHint());
   sv.show();
+  */
+
+  MainWindow w;
+  w.setSimulation(&sim);
+  w.show();
 
   return app.exec();
 #else

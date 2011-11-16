@@ -4,24 +4,31 @@
 #include <QGLWidget>
 #include "Simulation.h"
 
+class QTimer;
+
 class SimulationViewer : public QGLWidget
 {
-  Q_OBJECT
-public:
-  explicit SimulationViewer(Simulation *sim, QWidget *parent = 0);
+    Q_OBJECT
+  public:
+    explicit SimulationViewer(QWidget *parent = 0);
 
-  void initializeGL();
-  void resizeGL(int w, int h);
-  void paintGL();
+    void setSimulation(Simulation *sim);
 
-  QSize minimumSizeHint() { return QSize(100, 100); }
-  QSize sizeHint() { return QSize(m_sim->width(), m_sim->height()); }
+    void initializeGL();
+    void resizeGL(int w, int h);
+    void paintGL();
 
-  private slots:
-    void onTimer();
+    QSize minimumSizeHint() const { return QSize(100, 100); }
+    QSize sizeHint() const;
+
+  public slots:
+    void run(bool enabled);
+    void step();
 
   private:
+    void setupViewport();
     Simulation *m_sim;
+    QTimer *m_timer;
 };
 
 #endif // SIMULATIONVIEWER_H

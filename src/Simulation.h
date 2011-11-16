@@ -49,6 +49,8 @@ class Simulation: public QObject
 
     Simulation(const Params &p, QObject *parent = 0);
 
+    void reset(const Params &p);
+
     void advanceTime(Geom::Scalar dt);
     Geom::Scalar time() const { return m_time; }
 
