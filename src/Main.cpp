@@ -5,6 +5,7 @@
 
 #include "Simulation.h"
 #include "SimulationViewer.h"
+#include "MainWindow.h"
 
 int main(int argc, char **argv)
 {
@@ -25,9 +26,15 @@ int main(int argc, char **argv)
 
 #if 1
   // Visual simulation
+  /*
   SimulationViewer sv(&sim);
   sv.resize(sv.sizeHint());
   sv.show();
+  */
+
+  MainWindow w;
+  w.setSimulation(&sim);
+  w.show();
 
   return app.exec();
 #else

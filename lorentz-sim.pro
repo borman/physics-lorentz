@@ -3,20 +3,22 @@ TARGET = lorentz-sim
 QT += core gui opengl
 
 # tmp dirs
-OBJECTS_DIR = .build
-UI_DIR = .build
-MOC_DIR = .build
+OBJECTS_DIR = .build/
+UI_DIR = .build/
+MOC_DIR = .build/
 
 VPATH += src
 INCLUDEPATH += src
 DEPENDPATH += src
 HEADERS += SimulationViewer.h \
     Simulation.h \
-    Geom.h
+    Geom.h \
+    MainWindow.h
 SOURCES += Main.cpp \
     SimulationViewer.cpp \
     Simulation.cpp \
-    Geom.cpp
+    Geom.cpp \
+    MainWindow.cpp
 
 unix {
   clang {
@@ -36,4 +38,10 @@ win32 {
     QMAKE_LFLAGS += /openmp
   }
 }
+
+FORMS += \
+    src/MainWindow.ui
+
+
+
 

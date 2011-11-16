@@ -7,14 +7,13 @@ using namespace Geom;
 
 const double FPS = 60;
 
-SimulationViewer::SimulationViewer(Simulation *sim, QWidget *parent)
+SimulationViewer::SimulationViewer(QWidget *parent)
   : QGLWidget(QGLFormat(QGL::AccumBuffer | QGL::SampleBuffers), parent),
-    m_sim(sim)
+    m_sim(0)
 {
-  QTimer *t = new QTimer(this);
-  t->setInterval(1000/FPS);
-  t->start();
-  connect(t, SIGNAL(timeout()), SLOT(onTimer()));
+  m_timer = new QTimer(this);
+  m_timer->setInterval(1000/FPS);
+  connect(m_timer, SIGNAL(timeout()), SLOT(step()));
 }
 
 void SimulationViewer::initializeGL()
@@ -25,19 +24,28 @@ void SimulationViewer::initializeGL()
 void SimulationViewer::resizeGL(int w, int h)
 {
   glViewport(0, 0, (GLint) w, (GLint) h);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrtho(0, m_sim->width(), 0, m_sim->height(), 0, 15.0);
-  glMatrixMode(GL_MODELVIEW);
+  if (m_sim)
+    setupViewport();
 
   glPointSize(2.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
   glPointSize(2.0);
 }
 
+void SimulationViewer::setupViewport()
+{
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(0, m_sim->width(), 0, m_sim->height(), -1.0, 1.0);
+  glMatrixMode(GL_MODELVIEW);
+}
+
 void SimulationViewer::paintGL()
 {
   glClear(GL_COLOR_BUFFER_BIT);
+  if (!m_sim)
+    return;
+
   //glAccum(GL_RETURN, 1.0);
 
   glColor3d(1.0, 1.0, 1.0);
@@ -71,8 +79,31 @@ void SimulationViewer::paintGL()
   }
 }
 
-void SimulationViewer::onTimer()
+void SimulationViewer::step()
 {
   m_sim->advanceTime(1.0/FPS);
   update();
+}
+
+void SimulationViewer::run(bool enabled)
+{
+  if (enabled)
+    m_timer->start();
+  else
+    m_timer->stop();
+}
+
+void SimulationViewer::setSimulation(Simulation *sim)
+{
+  m_sim = sim;
+  if (isValid())
+      setupViewport();
+}
+
+QSize SimulationViewer::sizeHint() const
+{
+  if (m_sim)
+    return QSize(m_sim->width(), m_sim->height());
+  else
+    return minimumSizeHint();
 }
