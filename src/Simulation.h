@@ -43,7 +43,8 @@ class Simulation: public QObject
       Geom::Point pos;
       Geom::Scalar phase;
       // computed:
-      Geom::Scalar radius;
+      Geom::Scalar radius(const Params &p, Geom::Scalar time) const;
+      Geom::Scalar radiusSpeed(const Params &p, Geom::Scalar time) const;
     };
 
     Simulation(const Params &p, QObject *parent = 0);
@@ -56,7 +57,7 @@ class Simulation: public QObject
 
     size_t ionCount() const { return m_ions.size(); }
     Geom::Point ionPosition(int i) const { return m_ions[i].pos; }
-    Geom::Scalar ionRadius(int i) const { return m_ions[i].radius; }
+    Geom::Scalar ionRadius(int i) const { return m_ions[i].radius(m_params, m_time); }
 
     size_t electronCount() const { return m_electrons.size(); }
     Geom::Point electronPosition(int i) const { return m_electrons[i].pos; }

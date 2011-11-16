@@ -4,6 +4,7 @@
 #include <cmath>
 #include <QPointF>
 #include <QRectF>
+#include <QDebug>
 
 namespace Geom
 {
@@ -60,6 +61,14 @@ class Line
     Scalar a, b, c;
 };
 
+}
+
+
+// Debug output
+static inline QDebug operator<<(QDebug dbg, const Geom::Point &p)
+{
+  dbg.nospace() << "(" << p.x << "," << p.y << ")";
+  return dbg.space();
 }
 
 #endif // GEOM_H
