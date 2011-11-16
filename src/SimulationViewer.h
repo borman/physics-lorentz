@@ -14,8 +14,8 @@ public:
   void resizeGL(int w, int h);
   void paintGL();
 
-  QSize minimumSizeHint() { return QSize(100, 100); }
-  QSize sizeHint() { return QSize(m_sim->width(), m_sim->height()); }
+  QSize minimumSizeHint() const { return QSize(100, 100); }
+  QSize sizeHint() const { return QSize(m_sim->width(), m_sim->height()); }
 
   private slots:
     void onTimer();

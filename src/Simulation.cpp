@@ -4,10 +4,6 @@
 #include <QDebug>
 #include "Simulation.h"
 
-#ifndef M_PI
-#define M_PI 3.1415926535897932385
-#endif
-
 using namespace Geom;
 using namespace std;
 
@@ -81,11 +77,19 @@ Scalar Simulation::Ion::radiusSpeed(const Params &p, Scalar time) const
 }
 
 Simulation::Simulation(const Params &p, QObject *parent)
-  : QObject(parent),
-    m_params(p), m_time(0), 
-    m_width(p.gridStep * p.gridWidth),
-    m_height(p.gridStep * p.gridHeight)
+  : QObject(parent)
 {
+  reset(p);
+}
+
+void Simulation::reset(const Params &p)
+{
+  m_params = p;
+  m_time = 0;
+  m_width = p.gridStep * p.gridWidth;
+  m_height = p.gridStep * p.gridHeight;
+
+  m_ions.clear();
   m_ions.reserve(p.gridWidth * p.gridHeight);
   for (int y=0; y<p.gridHeight; y++)
     for (int x=0; x<p.gridWidth; x++)
@@ -99,6 +103,7 @@ Simulation::Simulation(const Params &p, QObject *parent)
       m_ions.push_back(ion);
     }
 
+  m_electrons.clear();
   m_electrons.reserve(p.electronCount);
   for (size_t i=0; i<p.electronCount; i++)
   {
@@ -240,7 +245,7 @@ void Simulation::advanceTime(Scalar dt)
 {
   //qDebug() << "-------------- Frame" << m_time << "->" << m_time+dt << "--------------";
 #pragma omp parallel for
-  for (int i=0; i<m_electrons.size(); i++)
+  for (int i=0; (size_t)i < m_electrons.size(); i++)
     advanceElectron(m_electrons[i], m_time, dt);
 
   m_time += dt;

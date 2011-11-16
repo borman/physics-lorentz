@@ -13,7 +13,6 @@ SimulationViewer::SimulationViewer(Simulation *sim, QWidget *parent)
 {
   QTimer *t = new QTimer(this);
   t->setInterval(1000/FPS);
-  //t->setInterval(500);
   t->start();
   connect(t, SIGNAL(timeout()), SLOT(onTimer()));
 }
@@ -41,9 +40,9 @@ void SimulationViewer::paintGL()
   glClear(GL_COLOR_BUFFER_BIT);
   //glAccum(GL_RETURN, 1.0);
 
-  glColor4d(1.0, 1.0, 1.0, 0.5);
+  glColor3d(1.0, 1.0, 1.0);
   glBegin(GL_POINTS);
-  for (int i=0; i<m_sim->electronCount(); i++)
+  for (size_t i=0; i<m_sim->electronCount(); i++)
   {
     Point pos = m_sim->electronPosition(i);
     glVertex2d(pos.x, pos.y);
@@ -54,14 +53,15 @@ void SimulationViewer::paintGL()
   //glAccum(GL_MULT, 0.9);
 
   glColor3d(0.9, 0.7, 0.5);
-  for (int i=0; i<m_sim->ionCount(); i++)
+  for (size_t i=0; i<m_sim->ionCount(); i++)
   {
     Point pos = m_sim->ionPosition(i);
     double r = m_sim->ionRadius(i);
 
+    // TODO: use display lists
     glBegin(GL_TRIANGLE_FAN);
     glVertex2d(pos.x, pos.y);
-    static const int circle_sides = 10;
+    static const int circle_sides = 20;
     for (int j=0; j<=circle_sides; j++)
     {
       double alpha = j * (2*M_PI/circle_sides);
@@ -74,5 +74,5 @@ void SimulationViewer::paintGL()
 void SimulationViewer::onTimer()
 {
   m_sim->advanceTime(1.0/FPS);
-  repaint();
+  update();
 }
