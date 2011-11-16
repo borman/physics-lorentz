@@ -19,7 +19,7 @@ int main(int argc, char **argv)
   param.ionOscillSpeed = 3;
   param.ionPhaseDistribution = Simulation::Uniform;
   param.electronBaseSpeed = 100;
-  param.electronCount = 1;
+  param.electronCount = 500;
 
   Simulation sim(param);
 

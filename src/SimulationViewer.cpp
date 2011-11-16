@@ -13,7 +13,7 @@ SimulationViewer::SimulationViewer(Simulation *sim, QWidget *parent)
 {
   QTimer *t = new QTimer(this);
   t->setInterval(1000/FPS);
-  //t->setInterval(100);
+  //t->setInterval(500);
   t->start();
   connect(t, SIGNAL(timeout()), SLOT(onTimer()));
 }
@@ -39,7 +39,7 @@ void SimulationViewer::resizeGL(int w, int h)
 void SimulationViewer::paintGL()
 {
   glClear(GL_COLOR_BUFFER_BIT);
-  glAccum(GL_RETURN, 1.0);
+  //glAccum(GL_RETURN, 1.0);
 
   glColor4d(1.0, 1.0, 1.0, 0.5);
   glBegin(GL_POINTS);
@@ -50,7 +50,7 @@ void SimulationViewer::paintGL()
   }
   glEnd();
 
-  glAccum(GL_LOAD, 1.0);
+  //glAccum(GL_LOAD, 1.0);
   //glAccum(GL_MULT, 0.9);
 
   glColor3d(0.9, 0.7, 0.5);
