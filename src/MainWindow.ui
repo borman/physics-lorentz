@@ -91,7 +91,7 @@
      <x>0</x>
      <y>0</y>
      <width>749</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -159,7 +159,7 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QSpinBox" name="spinBox"/>
+         <widget class="QSpinBox" name="spbRowCount"/>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_3">
@@ -169,7 +169,7 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QSpinBox" name="spinBox_2"/>
+         <widget class="QSpinBox" name="spbColumnCount"/>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_5">
@@ -179,7 +179,7 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+         <widget class="QDoubleSpinBox" name="spbDistance"/>
         </item>
         <item row="3" column="0">
          <widget class="QLabel" name="label_6">
@@ -189,7 +189,7 @@
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
+         <widget class="QDoubleSpinBox" name="spbBaseRadius"/>
         </item>
         <item row="4" column="0">
          <widget class="QLabel" name="label_7">
@@ -199,7 +199,7 @@
          </widget>
         </item>
         <item row="4" column="1">
-         <widget class="QDoubleSpinBox" name="doubleSpinBox_3"/>
+         <widget class="QDoubleSpinBox" name="spbDeltaRadius"/>
         </item>
         <item row="6" column="0">
          <widget class="QLabel" name="label_8">
@@ -209,7 +209,7 @@
          </widget>
         </item>
         <item row="6" column="1">
-         <widget class="QDoubleSpinBox" name="doubleSpinBox_4"/>
+         <widget class="QDoubleSpinBox" name="spbOscRate"/>
         </item>
         <item row="7" column="0">
          <widget class="QLabel" name="label_4">
@@ -219,7 +219,7 @@
          </widget>
         </item>
         <item row="7" column="1">
-         <widget class="QSpinBox" name="spinBox_3"/>
+         <widget class="QSpinBox" name="spbElectronCount"/>
         </item>
         <item row="8" column="0">
          <widget class="QLabel" name="label_9">
@@ -229,7 +229,14 @@
          </widget>
         </item>
         <item row="8" column="1">
-         <widget class="QDoubleSpinBox" name="doubleSpinBox_5"/>
+         <widget class="QDoubleSpinBox" name="spbElectronBaseSpeed"/>
+        </item>
+        <item row="9" column="0" colspan="2">
+         <widget class="QPushButton" name="btnApply">
+          <property name="text">
+           <string>Apply</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

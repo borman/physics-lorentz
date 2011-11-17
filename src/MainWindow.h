@@ -2,12 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <Simulation.h>
 
 namespace Ui {
 class MainWindow;
 }
-
-class Simulation;
 
 class MainWindow : public QMainWindow
 {
@@ -18,6 +17,8 @@ class MainWindow : public QMainWindow
     ~MainWindow();
 
     void setSimulation(Simulation *sim);
+
+    void loadParams(const Simulation::Params &p);
 
   private:
     Ui::MainWindow *ui;
