@@ -9,7 +9,7 @@ const double FPS = 60;
 
 SimulationViewer::SimulationViewer(QWidget *parent)
   : QGLWidget(QGLFormat(QGL::AccumBuffer | QGL::SampleBuffers), parent),
-    m_sim(0)
+    m_sim(0), m_needResize(false)
 {
   m_timer = new QTimer(this);
   m_timer->setInterval(1000/FPS);
@@ -19,6 +19,8 @@ SimulationViewer::SimulationViewer(QWidget *parent)
 void SimulationViewer::initializeGL()
 {
   glClearColor(0.0, 0.0, 0.0, 0.0);
+  glPointSize(2.0f);
+  glLineWidth(2.0f);
 }
 
 void SimulationViewer::resizeGL(int w, int h)
@@ -28,8 +30,6 @@ void SimulationViewer::resizeGL(int w, int h)
     setupViewport();
 
   glClear(GL_COLOR_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
-  glPointSize(2.0f);
-  glLineWidth(2.0f);
 }
 
 void SimulationViewer::setupViewport()
@@ -42,6 +42,11 @@ void SimulationViewer::setupViewport()
 
 void SimulationViewer::paintGL()
 {
+  /*
+  if (m_needResize && m_sim)
+    setupViewport();
+    */
+
   glClear(GL_COLOR_BUFFER_BIT);
   if (!m_sim)
     return;
@@ -67,7 +72,7 @@ void SimulationViewer::paintGL()
     double r = m_sim->ionRadius(i);
 
     // TODO: use display lists
-#if 0
+#if 1
     glBegin(GL_TRIANGLE_FAN);
     glVertex2d(pos.x, pos.y);
 #else
@@ -101,8 +106,8 @@ void SimulationViewer::setSimulation(Simulation *sim)
 {
   m_sim = sim;
   if (isValid())
-      setupViewport();
-  connect(m_sim, SIGNAL(paramsChanged()), SLOT(update()));
+    setupViewport();
+  connect(m_sim, SIGNAL(paramsChanged()), SLOT(simulationChanged()));
 }
 
 QSize SimulationViewer::sizeHint() const
@@ -119,4 +124,11 @@ int SimulationViewer::heightForWidth(int w) const
     return (m_sim->height() * w) / m_sim->width();
   else
     return -1;
+}
+
+void SimulationViewer::simulationChanged()
+{
+  if (isValid())
+    setupViewport();
+  update();
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>749</width>
-    <height>549</height>
+    <width>858</width>
+    <height>585</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -85,17 +85,6 @@
     </palette>
    </property>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>749</width>
-     <height>26</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dckOptions">
    <property name="features">
     <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
@@ -114,32 +103,30 @@
      <property name="fieldGrowthPolicy">
       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
      </property>
-     <item row="0" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QToolButton" name="btnStep">
-         <property name="text">
-          <string>Step</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QToolButton" name="btnRun">
-         <property name="text">
-          <string>Run</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Simulation control:</string>
+     <item row="0" column="0" colspan="2">
+      <widget class="QGroupBox" name="grpControl">
+       <property name="title">
+        <string>GroupBox</string>
        </property>
+       <layout class="QFormLayout" name="formLayout_3">
+        <item row="0" column="0" colspan="2">
+         <widget class="QPushButton" name="btnRun">
+          <property name="text">
+           <string>Run</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="2">
+         <widget class="QPushButton" name="btnStep">
+          <property name="text">
+           <string>Step</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
      <item row="1" column="0" colspan="2">
@@ -242,14 +229,14 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
+        <item row="5" column="0">
          <widget class="QLabel" name="label_8">
           <property name="text">
            <string>Ion oscillation rate</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
+        <item row="5" column="1">
          <widget class="QDoubleSpinBox" name="spbOscRate">
           <property name="minimum">
            <double>0.010000000000000</double>
@@ -262,14 +249,14 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="0">
+        <item row="6" column="0">
          <widget class="QLabel" name="label_4">
           <property name="text">
            <string>Electron count</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
+        <item row="6" column="1">
          <widget class="QSpinBox" name="spbElectronCount">
           <property name="minimum">
            <number>1</number>
@@ -282,17 +269,17 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="0">
+        <item row="7" column="0">
          <widget class="QLabel" name="label_9">
           <property name="text">
            <string>Electron base speed</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
+        <item row="7" column="1">
          <widget class="QDoubleSpinBox" name="spbElectronBaseSpeed">
           <property name="minimum">
-           <double>0.010000000000000</double>
+           <double>50.000000000000000</double>
           </property>
           <property name="maximum">
            <double>10000.000000000000000</double>
@@ -302,7 +289,7 @@
           </property>
          </widget>
         </item>
-        <item row="9" column="0" colspan="2">
+        <item row="8" column="0" colspan="2">
          <widget class="QPushButton" name="btnApply">
           <property name="text">
            <string>Apply</string>

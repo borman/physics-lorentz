@@ -106,7 +106,7 @@ void Simulation::reset(const Params &p)
     vector<Scalar> phases(m_ions.size());
     for (size_t i=0; i<m_ions.size(); i++)
       phases[i] = (Scalar(i)/m_ions.size()) * 2*M_PI;
-    //std::random_shuffle(phases.begin(), phases.end());
+    std::random_shuffle(phases.begin(), phases.end());
     for (size_t i=0; i<m_ions.size(); i++)
       m_ions[i].phase = phases[i];
   }

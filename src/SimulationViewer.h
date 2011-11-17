@@ -27,10 +27,13 @@ class SimulationViewer : public QGLWidget
     void run(bool enabled);
     void step();
 
-  private:
+  private slots:
     void setupViewport();
+    void simulationChanged();
+  private:
     Simulation *m_sim;
     QTimer *m_timer;
+    bool m_needResize;
 };
 
 #endif // SIMULATIONVIEWER_H
