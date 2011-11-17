@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
   connect(ui->btnRun, SIGNAL(toggled(bool)), ui->simViewer, SLOT(run(bool)));
   connect(ui->btnRun, SIGNAL(toggled(bool)), ui->btnStep, SLOT(setDisabled(bool)));
   connect(ui->btnRun, SIGNAL(toggled(bool)), ui->grpSimOptions, SLOT(setDisabled(bool)));
+  connect(ui->btnApply, SIGNAL(clicked()), SLOT(applyParams()));
 }
 
 MainWindow::~MainWindow()
@@ -34,4 +35,23 @@ void MainWindow::loadParams(const Simulation::Params &p)
   ui->spbOscRate->setValue(p.ionOscillSpeed);
   ui->spbElectronBaseSpeed->setValue(p.electronBaseSpeed);
   ui->spbElectronCount->setValue(p.electronCount);
+}
+
+void MainWindow::applyParams()
+{
+  if (!ui->simViewer->simulation())
+    return;
+
+  Simulation::Params p;
+  p.ionPhaseDistribution = Simulation::Uniform;
+  p.gridStep = ui->spbDistance->value();
+  p.gridWidth = ui->spbColumnCount->value();
+  p.gridHeight = ui->spbRowCount->value();
+  p.ionBaseRadius = ui->spbBaseRadius->value();
+  p.ionDeltaRadius = ui->spbDeltaRadius->value();
+  p.ionOscillSpeed = ui->spbOscRate->value();
+  p.electronBaseSpeed = ui->spbElectronBaseSpeed->value();
+  p.electronCount = ui->spbElectronCount->value();
+
+  ui->simViewer->simulation()->reset(p);
 }

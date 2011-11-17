@@ -17,8 +17,9 @@ class MainWindow : public QMainWindow
     ~MainWindow();
 
     void setSimulation(Simulation *sim);
-
     void loadParams(const Simulation::Params &p);
+  public slots:
+    void applyParams();
 
   private:
     Ui::MainWindow *ui;

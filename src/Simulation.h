@@ -64,6 +64,8 @@ class Simulation: public QObject
 
     size_t electronCount() const { return m_electrons.size(); }
     Geom::Point electronPosition(int i) const { return m_electrons[i].pos; }
+  signals:
+    void paramsChanged();
   private:
     void advanceElectron(Electron &e, Geom::Scalar time, Geom::Scalar dt);
     void collideWithIon(Geom::Scalar time,

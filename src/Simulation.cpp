@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <utility>
+#include <algorithm>
 #include <QList>
 #include <QDebug>
 #include "Simulation.h"
@@ -89,6 +90,7 @@ void Simulation::reset(const Params &p)
   m_width = p.gridStep * p.gridWidth;
   m_height = p.gridStep * p.gridHeight;
 
+  // Set up ions
   m_ions.clear();
   m_ions.reserve(p.gridWidth * p.gridHeight);
   for (int y=0; y<p.gridHeight; y++)
@@ -96,13 +98,20 @@ void Simulation::reset(const Params &p)
     {
       Ion ion;
       ion.pos = Point(p.gridStep * (x+0.5), p.gridStep * (y+0.5));
-      if (p.ionPhaseDistribution == Uniform)
-        ion.phase = rand_u() * 2 * M_PI;
-      else
-        ion.phase = 0;
+      ion.phase = 0;
       m_ions.push_back(ion);
     }
+  if (p.ionPhaseDistribution == Uniform)
+  {
+    vector<Scalar> phases(m_ions.size());
+    for (size_t i=0; i<m_ions.size(); i++)
+      phases[i] = (Scalar(i)/m_ions.size()) * 2*M_PI;
+    //std::random_shuffle(phases.begin(), phases.end());
+    for (size_t i=0; i<m_ions.size(); i++)
+      m_ions[i].phase = phases[i];
+  }
 
+  // Set up electrons
   m_electrons.clear();
   m_electrons.reserve(p.electronCount);
   for (size_t i=0; i<p.electronCount; i++)
@@ -128,12 +137,15 @@ void Simulation::reset(const Params &p)
     m_electrons.push_back(e);
   }
 
+  // Set up area borders
   m_edges[0] = Line(Point(0,        0),        Point(m_width, 0));
   m_edges[1] = Line(Point(m_width,  0),        Point(m_width, m_height));
   m_edges[2] = Line(Point(m_width,  m_height), Point(0,       m_height));
   m_edges[3] = Line(Point(0,        m_height), Point(0,       0));
   for (int i=0; i<4; i++)
     m_edges[i].normalize();
+
+  emit paramsChanged();
 }
 
 void Simulation::collideWithIon(Scalar time,

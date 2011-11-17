@@ -13,6 +13,7 @@ class SimulationViewer : public QGLWidget
     explicit SimulationViewer(QWidget *parent = 0);
 
     void setSimulation(Simulation *sim);
+    Simulation *simulation() const { return m_sim; }
 
     void initializeGL();
     void resizeGL(int w, int h);

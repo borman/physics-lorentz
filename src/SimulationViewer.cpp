@@ -27,9 +27,9 @@ void SimulationViewer::resizeGL(int w, int h)
   if (m_sim)
     setupViewport();
 
-  glPointSize(2.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
-  glPointSize(2.0);
+  glPointSize(2.0f);
+  glLineWidth(2.0f);
 }
 
 void SimulationViewer::setupViewport()
@@ -102,6 +102,7 @@ void SimulationViewer::setSimulation(Simulation *sim)
   m_sim = sim;
   if (isValid())
       setupViewport();
+  connect(m_sim, SIGNAL(paramsChanged()), SLOT(update()));
 }
 
 QSize SimulationViewer::sizeHint() const
