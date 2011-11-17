@@ -67,8 +67,12 @@ void SimulationViewer::paintGL()
     double r = m_sim->ionRadius(i);
 
     // TODO: use display lists
+#if 0
     glBegin(GL_TRIANGLE_FAN);
     glVertex2d(pos.x, pos.y);
+#else
+    glBegin(GL_LINE_STRIP);
+#endif
     static const int circle_sides = 20;
     for (int j=0; j<=circle_sides; j++)
     {
@@ -106,4 +110,12 @@ QSize SimulationViewer::sizeHint() const
     return QSize(m_sim->width(), m_sim->height());
   else
     return minimumSizeHint();
+}
+
+int SimulationViewer::heightForWidth(int w) const
+{
+  if (m_sim)
+    return (m_sim->height() * w) / m_sim->width();
+  else
+    return -1;
 }

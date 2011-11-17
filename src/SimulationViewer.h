@@ -20,6 +20,7 @@ class SimulationViewer : public QGLWidget
 
     QSize minimumSizeHint() const { return QSize(100, 100); }
     QSize sizeHint() const;
+    int heightForWidth(int w) const;
 
   public slots:
     void run(bool enabled);

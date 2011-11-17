@@ -244,7 +244,7 @@ void Simulation::advanceElectron(Simulation::Electron &e,
 void Simulation::advanceTime(Scalar dt)
 {
   //qDebug() << "-------------- Frame" << m_time << "->" << m_time+dt << "--------------";
-#pragma omp parallel for
+//#pragma omp parallel for
   for (int i=0; (size_t)i < m_electrons.size(); i++)
     advanceElectron(m_electrons[i], m_time, dt);
 

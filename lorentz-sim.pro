@@ -33,10 +33,7 @@ unix {
 
 win32 {
   DEFINES += _USE_MATH_DEFINES
-  openmp {
-    QMAKE_CXXFLAGS += /openmp
-    QMAKE_LFLAGS += /openmp
-  }
+  openmp:QMAKE_CXXFLAGS += /openmp
 }
 
 FORMS += \
