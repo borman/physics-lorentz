@@ -2,6 +2,7 @@
 #define GEOM_H
 
 #include <cmath>
+#include <cfloat>
 #include <QPointF>
 #include <QRectF>
 #include <QDebug>
@@ -11,7 +12,7 @@ namespace Geom
 
 typedef double Scalar;
 
-const Scalar eps = 1e-12;
+const Scalar eps = DBL_EPSILON;
 
 class Point
 {
