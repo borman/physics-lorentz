@@ -39,6 +39,13 @@ win32 {
 FORMS += \
     src/MainWindow.ui
 
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/3rdparty/qwt-6.0.1/lib/ -lqwt
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/3rdparty/qwt-6.0.1/lib/ -lqwtd
+else:unix:!macx:!symbian: LIBS += -L$$PWD/3rdparty/qwt-6.0.1/lib/ -lqwt
 
+INCLUDEPATH += $$PWD/3rdparty/qwt-6.0.1/src
+DEPENDPATH += $$PWD/3rdparty/qwt-6.0.1/src
 
-
+win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/3rdparty/qwt-6.0.1/lib/qwt.lib
+else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/3rdparty/qwt-6.0.1/lib/qwtd.lib
+else:unix:!macx:!symbian: PRE_TARGETDEPS += $$PWD/3rdparty/qwt-6.0.1/lib/libqwt.a
