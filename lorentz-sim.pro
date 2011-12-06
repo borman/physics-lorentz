@@ -29,6 +29,10 @@ SOURCES += Main.cpp \
     Geom.cpp \
     MainWindow.cpp \
     SimulationStats.cpp
+FORMS += \
+    MainWindow.ui
+TRANSLATIONS += \
+    lang/ru_RU.ts
 
 unix {
   clang {
@@ -46,9 +50,6 @@ win32 {
   openmp:QMAKE_CXXFLAGS += /openmp
 }
 
-FORMS += \
-    MainWindow.ui
-
 # Link with Qwt
 
 DEFINES += QWT_DLL
@@ -62,6 +63,6 @@ DEPENDPATH += $$PWD/3rdparty/qwt-6.0.1/src
 
 win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/3rdparty/qwt-6.0.1/lib/qwt.lib
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/3rdparty/qwt-6.0.1/lib/qwtd.lib
-else:unix:!macx:!symbian: PRE_TARGETDEPS += $$PWD/3rdparty/qwt-6.0.1/lib/libqwt.a
+else:unix:!macx:!symbian: PRE_TARGETDEPS += $$PWD/3rdparty/qwt-6.0.1/lib/libqwt.so
 
 
