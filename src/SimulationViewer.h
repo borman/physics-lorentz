@@ -28,7 +28,7 @@ class SimulationViewer : public QGLWidget
     void step();
 
   private slots:
-    void setupViewport();
+    void setupViewport(int w, int h);
     void simulationChanged();
   private:
     Simulation *m_sim;

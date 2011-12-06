@@ -25,6 +25,14 @@ void SimulationViewer::initializeGL()
 
 void SimulationViewer::resizeGL(int w, int h)
 {
+  if (m_sim)
+    setupViewport(w, h);
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
+}
+
+void SimulationViewer::setupViewport(int w, int h)
+{
   double simAspect = m_sim->width() / m_sim->height();
   double aspect = double(w)/double(h);
   int cw=w, ch=h;
@@ -34,14 +42,7 @@ void SimulationViewer::resizeGL(int w, int h)
     cw = h*simAspect;
 
   glViewport(0, 0, cw, ch);
-  if (m_sim)
-    setupViewport();
 
-  glClear(GL_COLOR_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
-}
-
-void SimulationViewer::setupViewport()
-{
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glOrtho(0, m_sim->width(), 0, m_sim->height(), -1.0, 1.0);
@@ -118,7 +119,7 @@ void SimulationViewer::setSimulation(Simulation *sim)
 {
   m_sim = sim;
   if (isValid())
-    setupViewport();
+    setupViewport(width(), height());
   connect(m_sim, SIGNAL(paramsChanged()), SLOT(simulationChanged()));
 }
 
@@ -141,6 +142,6 @@ int SimulationViewer::heightForWidth(int w) const
 void SimulationViewer::simulationChanged()
 {
   if (isValid())
-    setupViewport();
+    setupViewport(width(), height());
   update();
 }
