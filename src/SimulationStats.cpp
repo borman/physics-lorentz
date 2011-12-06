@@ -122,15 +122,17 @@ public:
     grid->attach(this);
 
     // Curves
+    m_rangeData = new IntervalLogSeries();
     m_rangeCurve = new QwtPlotIntervalCurve(tr("range"));
-    m_rangeCurve->setData(&m_rangeData);
+    m_rangeCurve->setData(m_rangeData);
     m_rangeCurve->attach(this);
     m_rangeCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
     m_rangeCurve->setPen(QColor(30, 30, 255));
     m_rangeCurve->setBrush(QColor(200, 200, 255, 150));
 
+    m_meanData = new PointLogSeries();
     m_meanCurve = new QwtPlotCurve(tr("mean"));
-    m_meanCurve->setData(&m_meanData);
+    m_meanCurve->setData(m_meanData);
     m_meanCurve->attach(this);
     m_meanCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
     m_meanCurve->setPen(QPen(QColor(30, 180, 30), 2));
@@ -155,15 +157,15 @@ public:
 
   void addData(double time, double min, double mean, double max)
   {
-    m_meanData.addData(QPointF(time, mean));
-    m_rangeData.addData(QwtIntervalSample(time, min, max));
+    m_meanData->addData(QPointF(time, mean));
+    m_rangeData->addData(QwtIntervalSample(time, min, max));
     replot();
   }
 private:
   QwtPlotCurve *m_meanCurve;
   QwtPlotIntervalCurve *m_rangeCurve;
-  PointLogSeries m_meanData;
-  IntervalLogSeries m_rangeData;
+  PointLogSeries *m_meanData;
+  IntervalLogSeries *m_rangeData;
 };
 
 SimulationStats::SimulationStats(QWidget *parent) :
