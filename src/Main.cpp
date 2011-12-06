@@ -2,6 +2,7 @@
 #include <QGraphicsView>
 #include <QTime>
 #include <QDebug>
+#include <QTranslator>
 
 #include "Simulation.h"
 #include "SimulationViewer.h"
@@ -10,6 +11,10 @@
 int main(int argc, char **argv)
 {
   QApplication app(argc, argv);
+
+  QTranslator tr;
+  tr.load(":/lang/tr");
+  app.installTranslator(&tr);
 
   Simulation::Params param;
   param.gridStep = 50;

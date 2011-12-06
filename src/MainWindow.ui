@@ -93,7 +93,7 @@
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
-    <string/>
+    <string>Simulation control</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
@@ -303,11 +303,20 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget">
+   <property name="minimumSize">
+    <size>
+     <width>69</width>
+     <height>200</height>
+    </size>
+   </property>
    <property name="features">
     <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
    </property>
    <property name="allowedAreas">
     <set>Qt::BottomDockWidgetArea|Qt::TopDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Speed Distribution</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>8</number>

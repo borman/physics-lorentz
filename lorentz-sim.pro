@@ -33,6 +33,8 @@ FORMS += \
     MainWindow.ui
 TRANSLATIONS += \
     lang/ru_RU.ts
+RESOURCES += \
+    lorentz-sim.qrc
 
 unix {
   clang {
@@ -64,5 +66,7 @@ DEPENDPATH += $$PWD/3rdparty/qwt-6.0.1/src
 win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/3rdparty/qwt-6.0.1/lib/qwt.lib
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/3rdparty/qwt-6.0.1/lib/qwtd.lib
 else:unix:!macx:!symbian: PRE_TARGETDEPS += $$PWD/3rdparty/qwt-6.0.1/lib/libqwt.so
+
+
 
 

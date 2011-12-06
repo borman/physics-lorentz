@@ -21,6 +21,10 @@ template<class T>
 class LogSeries: public QwtSeriesData<T>
 {
 public:
+  virtual void clear()
+  {
+    m_data.clear();
+  }
   virtual void addData(const T &d)
   {
     m_data.push_back(d);
@@ -83,6 +87,10 @@ private:
   double m_minX, m_maxX, m_minY, m_maxY;
 };
 
+
+//======================================================
+
+
 class SpeedDistributionPlot: public QwtPlot
 {
   Q_OBJECT
@@ -90,19 +98,21 @@ public:
   SpeedDistributionPlot(QWidget *parent = 0)
     : QwtPlot(parent)
   {
+#if 1
     // Fonts
     QFont titleFont = font();
     titleFont.setPointSize(titleFont.pointSize()+2);
     titleFont.setBold(true);
     QFont axisTitleFont = font();
-    axisTitleFont.setPointSize(axisTitleFont.pointSize()+1);
+    axisTitleFont.setPointSize(axisTitleFont.pointSize());
     axisTitleFont.setBold(true);
     QFont tickFont = font();
+    tickFont.setPointSize(tickFont.pointSize()-2);
 
     // Title
-    QwtText plotTitle(tr("Speed distribution"));
-    plotTitle.setFont(titleFont);
-    setTitle(plotTitle);
+    //QwtText plotTitle(tr("Speed distribution"));
+    //plotTitle.setFont(titleFont);
+    //setTitle(plotTitle);
 
     QwtText axisTitle;
     axisTitle.setFont(axisTitleFont);
@@ -116,10 +126,17 @@ public:
     axisTitle.setText(tr("Speed"));
     setAxisTitle(QwtPlot::yLeft, axisTitle);
     setAxisFont(QwtPlot::yLeft, tickFont);
+#endif
+
+    // Axes
+    setAxisScale(QwtPlot::xBottom, 0, 100);
+    setAxisScale(QwtPlot::yLeft, 0, 300);
 
     // Grid
     QwtPlotGrid *grid = new QwtPlotGrid();
     grid->attach(this);
+    grid->setMajPen(QPen(QColor(220, 220, 240), 2));
+    grid->setMinPen(QPen(QColor(220, 220, 220), 1, Qt::DotLine));
 
     // Curves
     m_rangeData = new IntervalLogSeries();
@@ -161,6 +178,11 @@ public:
     m_rangeData->addData(QwtIntervalSample(time, min, max));
     replot();
   }
+  void reset()
+  {
+    m_meanData->clear();
+    m_rangeData->clear();
+  }
 private:
   QwtPlotCurve *m_meanCurve;
   QwtPlotIntervalCurve *m_rangeCurve;
@@ -168,12 +190,17 @@ private:
   IntervalLogSeries *m_rangeData;
 };
 
+
+//======================================================
+
+
 SimulationStats::SimulationStats(QWidget *parent) :
-    QWidget(parent), m_sim(0)
+    QWidget(parent), m_sim(0), m_lastUpdateTime(-2)
 {
   m_sdPlot = new SpeedDistributionPlot(this);
 
   QHBoxLayout *l = new QHBoxLayout();
+  l->setContentsMargins(3, 3, 3, 3);
   l->addWidget(m_sdPlot);
   setLayout(l);
 
@@ -184,10 +211,14 @@ void SimulationStats::setSimulation(Simulation *sim)
 {
   m_sim = sim;
   connect(sim, SIGNAL(advanced()), SLOT(simulationUpdated()));
+  connect(sim, SIGNAL(paramsChanged()), SLOT(simulationReset()));
 }
 
 void SimulationStats::simulationUpdated()
 {
+  if (m_sim->time() - m_lastUpdateTime < 1)
+    return;
+
   double max, min;
   max = min = m_sim->electron(0).vel.length();
   double mean = 0;
@@ -200,6 +231,14 @@ void SimulationStats::simulationUpdated()
   }
   mean /= m_sim->electronCount();
   m_sdPlot->addData(m_sim->time(), min, mean, max);
+
+  m_lastUpdateTime = m_sim->time();
+}
+
+void SimulationStats::simulationReset()
+{
+  m_sdPlot->reset();
+  m_lastUpdateTime = -2;
 }
 
 #include "SimulationStats.moc"

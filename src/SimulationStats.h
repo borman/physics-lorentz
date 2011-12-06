@@ -15,10 +15,12 @@ public:
 
 private slots:
   void simulationUpdated();
+  void simulationReset();
 
 private:
   SpeedDistributionPlot *m_sdPlot;
   Simulation *m_sim;
+  double m_lastUpdateTime;
 };
 
 #endif // SIMULATIONSTATS_H
