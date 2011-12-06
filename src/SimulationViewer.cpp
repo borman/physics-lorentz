@@ -73,7 +73,7 @@ void SimulationViewer::paintGL()
     double r = m_sim->ion(i).radius(m_sim->params(), m_sim->time());
 
     // TODO: use display lists
-#if 1
+#if 0
     glBegin(GL_TRIANGLE_FAN);
     glVertex2d(pos.x, pos.y);
 #else

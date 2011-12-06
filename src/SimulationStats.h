@@ -4,18 +4,21 @@
 #include <QWidget>
 
 class SpeedDistributionPlot;
+class Simulation;
 
 class SimulationStats : public QWidget
 {
   Q_OBJECT
 public:
   explicit SimulationStats(QWidget *parent = 0);
+  void setSimulation(Simulation *sim);
 
-signals:
+private slots:
+  void simulationUpdated();
 
-public slots:
 private:
   SpeedDistributionPlot *m_sdPlot;
+  Simulation *m_sim;
 };
 
 #endif // SIMULATIONSTATS_H

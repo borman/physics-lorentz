@@ -321,7 +321,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="SimulationStats" name="widget" native="true"/>
+      <widget class="SimulationStats" name="simStats" native="true"/>
      </item>
     </layout>
    </widget>

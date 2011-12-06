@@ -22,6 +22,7 @@ MainWindow::~MainWindow()
 void MainWindow::setSimulation(Simulation *sim)
 {
   ui->simViewer->setSimulation(sim);
+  ui->simStats->setSimulation(sim);
   loadParams(sim->params());
 }
 

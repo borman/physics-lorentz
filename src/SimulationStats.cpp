@@ -11,9 +11,77 @@
 #include <qwt_plot_panner.h>
 #include <qwt_plot_magnifier.h>
 #include <qwt_plot_canvas.h>
+#include <qwt_plot_layout.h>
 #include <qwt_series_data.h>
 
+#include "Simulation.h"
 #include "SimulationStats.h"
+
+template<class T>
+class LogSeries: public QwtSeriesData<T>
+{
+public:
+  virtual void addData(const T &d)
+  {
+    m_data.push_back(d);
+  }
+
+  virtual T sample(size_t i) const { return m_data[i]; }
+  virtual size_t size() const { return m_data.size(); }
+private:
+  QVector<T> m_data;
+};
+
+class PointLogSeries: public LogSeries<QPointF>
+{
+public:
+  PointLogSeries(): m_minX(0), m_maxX(0), m_minY(0), m_maxY(0) {}
+  virtual void addData(const QPointF &d)
+  {
+    if (size() == 0)
+    {
+      m_minX = m_maxX = d.x();
+      m_minY = m_maxY = d.y();
+    }
+    else
+    {
+      m_minX = qMin(m_minX, d.x());
+      m_minY = qMin(m_minY, d.y());
+      m_maxX = qMax(m_maxX, d.x());
+      m_maxY = qMax(m_maxY, d.y());
+    }
+    LogSeries<QPointF>::addData(d);
+  }
+  virtual QRectF boundingRect() const { return QRectF(m_minX, m_minY, m_maxX-m_minX, m_maxY-m_minY); }
+private:
+  double m_minX, m_maxX, m_minY, m_maxY;
+};
+
+class IntervalLogSeries: public LogSeries<QwtIntervalSample>
+{
+public:
+  IntervalLogSeries(): m_minX(0), m_maxX(0), m_minY(0), m_maxY(0) {}
+  virtual void addData(const QwtIntervalSample &d)
+  {
+    if (size() == 0)
+    {
+      m_minX = m_maxX = d.value;
+      m_minY = d.interval.minValue();
+      m_maxY = d.interval.maxValue();
+    }
+    else
+    {
+      m_minX = qMin(m_minX, d.value);
+      m_minY = qMin(m_minY, d.interval.minValue());
+      m_maxX = qMax(m_maxX, d.value);
+      m_maxY = qMax(m_maxY, d.interval.maxValue());
+    }
+    LogSeries<QwtIntervalSample>::addData(d);
+  }
+  virtual QRectF boundingRect() const { return QRectF(m_minX, m_minY, m_maxX-m_minX, m_maxY-m_minY); }
+private:
+  double m_minX, m_maxX, m_minY, m_maxY;
+};
 
 class SpeedDistributionPlot: public QwtPlot
 {
@@ -55,67 +123,81 @@ public:
 
     // Curves
     m_rangeCurve = new QwtPlotIntervalCurve(tr("range"));
+    m_rangeCurve->setData(&m_rangeData);
     m_rangeCurve->attach(this);
     m_rangeCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
     m_rangeCurve->setPen(QColor(30, 30, 255));
     m_rangeCurve->setBrush(QColor(200, 200, 255, 150));
 
     m_meanCurve = new QwtPlotCurve(tr("mean"));
+    m_meanCurve->setData(&m_meanData);
     m_meanCurve->attach(this);
     m_meanCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
     m_meanCurve->setPen(QPen(QColor(30, 180, 30), 2));
 
     // Panning
     QwtPlotPanner *panner = new QwtPlotPanner(canvas());
-    panner->setOrientations(Qt::Horizontal);
+    //panner->setOrientations(Qt::Horizontal);
     panner->setMouseButton(Qt::LeftButton);
 
     // Zooming
     QwtPlotMagnifier *mag = new QwtPlotMagnifier(canvas());
     mag->setMouseButton(Qt::NoButton);
-    mag->setAxisEnabled(QwtPlot::xBottom, true);
-    mag->setAxisEnabled(QwtPlot::yLeft, false);
+    //mag->setAxisEnabled(QwtPlot::xBottom, true);
+    //mag->setAxisEnabled(QwtPlot::yLeft, true);
 
-
-    // Canvas palette
+    // Canvas
     canvas()->setPalette(Qt::white);
     canvas()->setPaintAttribute(QwtPlotCanvas::ImmediatePaint, true);
+
+    plotLayout()->setSpacing(0);
   }
 
   void addData(double time, double min, double mean, double max)
   {
-    m_timeData.push_back(time);
-    m_meanData.push_back(mean);
-    m_rangeData.push_back(QwtIntervalSample(time, min, max));
-    m_meanCurve->setSamples(m_timeData, m_meanData);
-    m_rangeCurve->setSamples(m_rangeData);
+    m_meanData.addData(QPointF(time, mean));
+    m_rangeData.addData(QwtIntervalSample(time, min, max));
+    replot();
   }
 private:
   QwtPlotCurve *m_meanCurve;
   QwtPlotIntervalCurve *m_rangeCurve;
-  QVector<double> m_timeData;
-  QVector<double> m_meanData;
-  QVector<QwtIntervalSample> m_rangeData;
+  PointLogSeries m_meanData;
+  IntervalLogSeries m_rangeData;
 };
 
 SimulationStats::SimulationStats(QWidget *parent) :
-    QWidget(parent)
+    QWidget(parent), m_sim(0)
 {
   m_sdPlot = new SpeedDistributionPlot(this);
-
-  for (int i=0; i<2000; i++)
-  {
-    double mean = 50 + double(rand())/RAND_MAX;
-    double d1 = 0.8 + 0.4*double(rand())/RAND_MAX;
-    double d2 = 0.8 + 0.4*double(rand())/RAND_MAX;
-    m_sdPlot->addData(i/60.0, mean-d1, mean, mean+d2);
-  }
 
   QHBoxLayout *l = new QHBoxLayout();
   l->addWidget(m_sdPlot);
   setLayout(l);
 
   setMinimumHeight(200);
+}
+
+void SimulationStats::setSimulation(Simulation *sim)
+{
+  m_sim = sim;
+  connect(sim, SIGNAL(advanced()), SLOT(simulationUpdated()));
+}
+
+void SimulationStats::simulationUpdated()
+{
+  double max, min;
+  max = min = m_sim->electron(0).vel.length();
+  double mean = 0;
+  for (int i=0; i<m_sim->electronCount(); i++)
+  {
+    double v = m_sim->electron(i).vel.length();
+    mean += v;
+    max = qMax(max, v);
+    min = qMin(min, v);
+  }
+  mean /= m_sim->electronCount();
+  m_sdPlot->addData(m_sim->time(), min, mean, max);
 }
 
 #include "SimulationStats.moc"
