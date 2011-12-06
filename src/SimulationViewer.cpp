@@ -25,8 +25,15 @@ void SimulationViewer::initializeGL()
 
 void SimulationViewer::resizeGL(int w, int h)
 {
-  GLint s = qMin(w, h);
-  glViewport(0, h-s, s, s);
+  double simAspect = m_sim->width() / m_sim->height();
+  double aspect = double(w)/double(h);
+  int cw=w, ch=h;
+  if (aspect < simAspect)
+    ch = w/simAspect;
+  else
+    cw = h*simAspect;
+
+  glViewport(0, 0, cw, ch);
   if (m_sim)
     setupViewport();
 
@@ -43,11 +50,6 @@ void SimulationViewer::setupViewport()
 
 void SimulationViewer::paintGL()
 {
-  /*
-  if (m_needResize && m_sim)
-    setupViewport();
-    */
-
   glClear(GL_COLOR_BUFFER_BIT);
   if (!m_sim)
     return;
@@ -55,6 +57,15 @@ void SimulationViewer::paintGL()
   //glAccum(GL_RETURN, 1.0);
 
   glColor3d(1.0, 1.0, 1.0);
+  glBegin(GL_LINE_STRIP);
+    glVertex2d(0, 0);
+    glVertex2d(m_sim->width(), 0);
+    glVertex2d(m_sim->width(), m_sim->height());
+    glVertex2d(0, m_sim->height());
+    glVertex2d(0, 0);
+  glEnd();
+
+  // Electrons
   glBegin(GL_POINTS);
   for (size_t i=0; i<m_sim->electronCount(); i++)
   {
@@ -73,7 +84,7 @@ void SimulationViewer::paintGL()
     double r = m_sim->ion(i).radius(m_sim->params(), m_sim->time());
 
     // TODO: use display lists
-#if 0
+#if 1
     glBegin(GL_TRIANGLE_FAN);
     glVertex2d(pos.x, pos.y);
 #else
