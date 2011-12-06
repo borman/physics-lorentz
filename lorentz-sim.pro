@@ -1,11 +1,19 @@
 TEMPLATE = app
 TARGET = lorentz-sim
-QT += core gui opengl
+QT = core gui opengl
 
 # tmp dirs
-OBJECTS_DIR = .build/
-UI_DIR = .build/
-MOC_DIR = .build/
+
+CONFIG(debug) {
+  OBJECTS_DIR = .build/debug
+  UI_DIR = .build/debug
+  MOC_DIR = .build/debug
+}
+else {
+  OBJECTS_DIR = .build/release
+  UI_DIR = .build/release
+  MOC_DIR = .build/release
+}
 
 VPATH += src
 INCLUDEPATH += src
@@ -13,12 +21,14 @@ DEPENDPATH += src
 HEADERS += SimulationViewer.h \
     Simulation.h \
     Geom.h \
-    MainWindow.h
+    MainWindow.h \
+    SimulationStats.h
 SOURCES += Main.cpp \
     SimulationViewer.cpp \
     Simulation.cpp \
     Geom.cpp \
-    MainWindow.cpp
+    MainWindow.cpp \
+    SimulationStats.cpp
 
 unix {
   clang {
@@ -37,7 +47,11 @@ win32 {
 }
 
 FORMS += \
-    src/MainWindow.ui
+    MainWindow.ui
+
+# Link with Qwt
+
+DEFINES += QWT_DLL
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/3rdparty/qwt-6.0.1/lib/ -lqwt
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/3rdparty/qwt-6.0.1/lib/ -lqwtd
@@ -49,3 +63,5 @@ DEPENDPATH += $$PWD/3rdparty/qwt-6.0.1/src
 win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/3rdparty/qwt-6.0.1/lib/qwt.lib
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/3rdparty/qwt-6.0.1/lib/qwtd.lib
 else:unix:!macx:!symbian: PRE_TARGETDEPS += $$PWD/3rdparty/qwt-6.0.1/lib/libqwt.a
+
+

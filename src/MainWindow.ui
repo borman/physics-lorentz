@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>858</width>
-    <height>585</height>
+    <height>700</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -302,12 +302,42 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QDockWidget" name="dockWidget">
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::BottomDockWidgetArea|Qt::TopDockWidgetArea</set>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="SimulationStats" name="widget" native="true"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>
    <class>SimulationViewer</class>
    <extends>QWidget</extends>
    <header>SimulationViewer.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SimulationStats</class>
+   <extends>QWidget</extends>
+   <header>SimulationStats.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

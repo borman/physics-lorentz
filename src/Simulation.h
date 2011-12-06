@@ -50,7 +50,7 @@ class Simulation: public QObject
     Simulation(const Params &p, QObject *parent = 0);
 
     void reset(const Params &p);
-    Params params() const { return m_params; }
+    const Params &params() const { return m_params; }
 
     void advanceTime(Geom::Scalar dt);
     Geom::Scalar time() const { return m_time; }
@@ -59,13 +59,13 @@ class Simulation: public QObject
     Geom::Scalar height() const { return m_height; }
 
     size_t ionCount() const { return m_ions.size(); }
-    Geom::Point ionPosition(int i) const { return m_ions[i].pos; }
-    Geom::Scalar ionRadius(int i) const { return m_ions[i].radius(m_params, m_time); }
+    const Ion &ion(int n) { return m_ions[n]; }
 
     size_t electronCount() const { return m_electrons.size(); }
-    Geom::Point electronPosition(int i) const { return m_electrons[i].pos; }
+    const Electron &electron(int n) const { return m_electrons[n]; }
   signals:
     void paramsChanged();
+    void advanced();
   private:
     void advanceElectron(Electron &e, Geom::Scalar time, Geom::Scalar dt);
     void collideWithIon(Geom::Scalar time,

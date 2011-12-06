@@ -25,7 +25,8 @@ void SimulationViewer::initializeGL()
 
 void SimulationViewer::resizeGL(int w, int h)
 {
-  glViewport(0, 0, (GLint) w, (GLint) h);
+  GLint s = qMin(w, h);
+  glViewport(0, h-s, s, s);
   if (m_sim)
     setupViewport();
 
@@ -57,7 +58,7 @@ void SimulationViewer::paintGL()
   glBegin(GL_POINTS);
   for (size_t i=0; i<m_sim->electronCount(); i++)
   {
-    Point pos = m_sim->electronPosition(i);
+    Point pos = m_sim->electron(i).pos;
     glVertex2d(pos.x, pos.y);
   }
   glEnd();
@@ -68,8 +69,8 @@ void SimulationViewer::paintGL()
   glColor3d(0.9, 0.7, 0.5);
   for (size_t i=0; i<m_sim->ionCount(); i++)
   {
-    Point pos = m_sim->ionPosition(i);
-    double r = m_sim->ionRadius(i);
+    Point pos = m_sim->ion(i).pos;
+    double r = m_sim->ion(i).radius(m_sim->params(), m_sim->time());
 
     // TODO: use display lists
 #if 1
